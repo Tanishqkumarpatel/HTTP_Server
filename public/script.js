@@ -1,12 +1,6 @@
 console.log("Welcome to the Finance Tracker!");
 
-// let transaction = JSON.parse(localStorage.getItem("transactions")) || [];
-// let total_balance = transaction.reduce((acc, t) => acc + t.income, 0);
-
 UpdateUi();
-// function save() {
-//     localStorage.setItem("transactions", JSON.stringify(transaction));
-// }
 
 async function add(str, num) {
 
@@ -18,50 +12,12 @@ async function add(str, num) {
         }),
         headers: {"Content-Type": "application/json"}
     });
-    
-    // let t = {
-    //     name: str,
-    //     income: num
-    // }
-    // total_balance += num;
-    // transaction.push(t);
-    // save();
 }
-
-// function display() {
-//     console.log(transaction);
-// }
-
-// function del(index) {
-
-
-
-    // total_balance -= transaction[index].income;
-    // transaction.splice(index, 1);
-    // save();
-// }
 
 async function UpdateUi() {
     const list = document.getElementById("transaction");
     const Balance = document.getElementById("balance");
     let total_balance = 0;
-    // list.innerHTML = "";
-    // transaction.forEach((t_n, idx) => {    
-    //     const t = document.createElement("li");
-    //     t.innerText = `${t_n.name}: ${t_n.income}`;
-
-    //     if (t_n.income >= 0) {
-    //         t.classList.add("income");
-    //     } else {
-    //         t.classList.add("expense");
-    //     }
-
-    //     const button = document.createElement("button");
-    //     button.innerHTML = "Delete";
-    //     button.onclick = () => handleDelete(idx);
-    //     t.appendChild(button);
-    //     list.append(t);
-    // });
 
     try {
         const res = await fetch("/transactions", {
@@ -114,7 +70,7 @@ async function handleAdd() {
 }
 
 async function handleDelete(idx) {
-    // del(idx);
+
     try {
         const res = await fetch(`/transactions/${idx}`, {
             method: "DELETE",
