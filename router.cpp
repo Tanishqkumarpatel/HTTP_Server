@@ -2,7 +2,7 @@
 #include "http.hpp"
 
 std::vector<Route> routes = {
-    {"GET", std::regex("^/transactions$"), getTransaction},
+    {"GET", std::regex("^/transactions$"), getTransactions},
     {"POST", std::regex("^/transactions$"), createTransaction},
     {"DELETE", std::regex("^/transactions/(\\d+)$"), deleteTransaction}
 };
@@ -11,7 +11,7 @@ std::vector<Route> routes = {
 HttpResponse route(const HttpRequest& req) {
     HttpResponse res{};
     std::smatch matches{};
-    for (int i = 0; i<routes.size(); i++) {
+    for (int i = 0; i<int(routes.size()); i++) {
         if (req.method == routes[i].method && std::regex_match(req.resource, matches, routes[i].pattern)) {
             if (matches.size()>1) {
                 req.params["id"] = matches[1].str();

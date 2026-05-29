@@ -3,6 +3,9 @@
 
 #include <vector>
 #include "http.hpp"
+#include <mutex>
+
+extern std::mutex transactions_mutex;
 
 struct Transaction {
     int id;
@@ -13,7 +16,7 @@ struct Transaction {
 extern std::vector<Transaction> transactions;
 
 HttpResponse createTransaction(const HttpRequest& req);
-HttpResponse getTransaction(const HttpRequest& req);
+HttpResponse getTransactions(const HttpRequest& req);
 HttpResponse deleteTransaction(const HttpRequest& req);
 HttpResponse serveFile(const HttpRequest& req);
 

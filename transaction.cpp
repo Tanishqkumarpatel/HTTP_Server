@@ -3,20 +3,58 @@
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
-
+std::mutex transactions_mutex{};
 std::vector<Transaction> transactions {};
 
 HttpResponse createTransaction(const HttpRequest &req) {
+    HttpResponse res {};
+    
+    auto it = req.headers.find("Content-Type");
+    if (it == req.headers.end() || it->second != "application/json") {
+        // Malformed Header: missing or incorrect type.
+        res.status_code = 415;
+        res.status_text = "Unsupported Media Type";
+        res.headers["Accept-Post"] = "application/json";
+        return res;
+    }
 
+    json obj{};
+    try {
+        obj = json::parse(req.body);
+    } catch (json::parse_error& e) {
+        res.status_code = 400;
+        res.status_text = "Bad Request";
+        return res;
+    }
+
+    Transaction t {};
+    
+    if (!obj["description"].is_string() || !obj["amount"].is_number()) {
+        res.status_code = 422;
+        res.status_text = "Unprocessable Content";
+        res.headers["Date"] = getTimestamp();
+        return res;
+    }
+    std::lock_guard<std::mutex> lock(transactions_mutex);
+    static int next_id = transactions.empty() ? 1 : transactions.back().id + 1;
+    t.id = next_id++;
+    t.description = obj["description"];
+    t.amount = obj["amount"];
+    transactions.push_back(t);
+    // Using 204 because browers calls get after each create call.
+    res.status_code = 204;
+    res.status_text = "No Content";
+    res.headers["Date"] = getTimestamp();
+    return res;
 }
 
 
-HttpResponse getTransaction(const HttpRequest &req) {
+HttpResponse getTransactions(const HttpRequest &req) {
 
     HttpResponse res{};
 
     json array = json::array();
-
+    std::lock_guard<std::mutex> lock(transactions_mutex);
     for (auto& t : transactions) {
         json obj;
         obj["id"] = t.id;
@@ -29,12 +67,41 @@ HttpResponse getTransaction(const HttpRequest &req) {
     res.body = array.dump();
     res.headers["Content-Type"] = "application/json";
     res.headers["Content-Length"] = std::to_string(res.body.size());
-    return res;   
+    return res;
 }
 
-
 HttpResponse deleteTransaction(const HttpRequest &req) {
+    HttpResponse res{};
+    auto it = req.params.find("id");
+    if (it == req.params.end()) {
+        res.status_code = 400;
+        res.status_text = "Bad Request";
+        res.headers["Date"] = getTimestamp();
+        return res;
+    }
+    int id = atoi(it->second.c_str());
+    
+    std::lock_guard<std::mutex> lock(transactions_mutex);
+    auto t_it = transactions.begin();
 
+    while (t_it != transactions.end()) {
+        if (t_it->id == id) {
+            transactions.erase(t_it);
+            res.status_code = 200;
+            res.status_text = "OK";
+            res.headers["Content-Type"] = "application/json";
+            json obj{};
+            obj["message"] = "Deleted";
+            res.body = obj.dump();
+            res.headers["Content-Length"] = std::to_string(res.body.length());
+            return res;
+        }
+        t_it++;
+    }
+    res.status_code = 404;
+    res.status_text = "Not Found";
+    res.headers["Date"] = getTimestamp();
+    return res;
 }
 
 HttpResponse serveFile(const HttpRequest &req) {
