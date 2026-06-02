@@ -5,8 +5,19 @@
 #include <string>
 #include <thread>
 #include <arpa/inet.h>
+#include <queue>
+#include <condition_variable>
+#include <mutex>
+#include <vector>
 #include "http.hpp"
 #include "router.hpp"
+
+std::queue<int> client_queue{};
+std::condition_variable cv;
+std::mutex queue_mutex;
+bool stop {true};
+
+
 
 int startServer()
 {
@@ -36,7 +47,7 @@ int startServer()
         std::cerr << "error listening on the socket" << std::endl;
         return -1;
     }
-
+    stop = false;
     return server_fd;
 }
 
@@ -59,6 +70,9 @@ void handleClient(int client_fd)
 {
     while (true)
     {
+        if (stop) {
+            break;
+        }
         char buffer[8192]{};
         int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
         if (bytes < 0)
@@ -96,8 +110,35 @@ void handleClient(int client_fd)
     std::cout << "Client: " << client_fd << " Has Discoonected\n";
 }
 
-int main()
+void workerThread() {
+    while (!stop)
+    {
+            
+        std::cout << "worker waiting\n";
+        std::unique_lock<std::mutex> lock(queue_mutex);
+        cv.wait(lock, [] { return !client_queue.empty(); });
+    
+        int client_fd = client_queue.front();
+        client_queue.pop();
+        lock.unlock();
+        std::cout << "thread picking up fd: " << client_fd << "\n";
+        handleClient(client_fd);
+        std::cout << "thread done with fd: " << client_fd << "\n";
+    }
+}
+
+int main(int argc, char *argv[])
 {
+    if (argc != 2) {
+        std::cout << "Requres 2 argument exactly" << std::endl;
+        return 1;
+    }
+
+    const int N = atoi(argv[1]);
+    if (N <= 0) {
+        std::cout << "Second argument must be a interger greater than 0." << std::endl;
+        return 1;
+    } 
 
     int server_fd = startServer();
     if (server_fd < 0)
@@ -111,6 +152,15 @@ int main()
         {4, "Freelance", 800.00},
         {5, "Netflix", -15.99}
     };
+
+    std::vector<std::thread> thread_pool{};
+
+    for (int i = 0; i < N; i++) {
+        std::thread worker(workerThread);
+        thread_pool.push_back(std::move(worker));
+    }
+
+
     while (true)
     {
         int client_fd = getClient(server_fd);
@@ -118,9 +168,26 @@ int main()
         {
             continue;
         }
-        std::thread t(handleClient, client_fd);
-        t.detach();
+        // client queue is shared resource - lock needed.
+        {
+            std::lock_guard<std::mutex> lock(queue_mutex);
+            client_queue.push(client_fd);
+        } // unlocks as its get out of scope.
+
+        cv.notify_one();
+        std::cout << "pushed fd: " << client_fd << " queue size: " << client_queue.size() << "\n";
+
+        // std::thread t(handleClient, client_fd);
+        // t.detach();
     }
 
+    // never reaches this part of the code - above loop runs inf.
+    stop = true;
+    auto it = thread_pool.begin();
+    while (it != thread_pool.end()) {
+        it->join();
+        it++;
+    }
+    close(server_fd);
     return 0;
 }
