@@ -17,6 +17,17 @@
 
         <ol id="transaction"> </ol>
         
+        <div id="modal-overlay">
+            <div id="modal-box">
+                <h3>Edit Transaction</h3>
+                <input type="text" id="modal-name" placeholder="Transaction Name" />
+                <input type="number" step="50" id="modal-amount" placeholder="amount (+/-)" />
+                <div id="modal-btns">
+                    <button onclick="handleSave()" id="save-btn">Save</button>
+                    <button onclick="handleCancel()" id="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
 
         <script src="script.js"></script>
     </body>
