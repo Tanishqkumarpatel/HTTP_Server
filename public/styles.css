@@ -37,21 +37,92 @@ h1, h2 {
   justify-content: space-between;
   align-items: center;
   border-radius: 5px;
+  gap: 8px;
 }
 #transaction button {
-  background-color: crimson;
   color: white;
   border: none;
   padding: 4px 10px;
   border-radius: 4px;
   cursor: pointer;
 }
-#transaction button:hover {
+#transaction li div {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  border:none;
+}
+#delete-btn {
+  background-color: crimson;
+}
+#delete-btn:hover {
   background-color: darkred;
+}
+#edit-btn {
+  background-color: goldenrod;
+}
+#edit-btn:hover {
+  background-color: darkgoldenrod;
 }
 .income {
   border-left: 5px solid green;
 }
 .expense {
   border-left: 5px solid red;
+}
+
+#modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+#modal-box {
+  background-color: white;
+  padding: 24px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 300px;
+}
+
+#modal-btns {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: space-between;
+  border: none;
+}
+
+#save-btn {
+  background-color: green;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#save-btn:hover {
+  background-color: darkgreen;
+}
+
+#cancel-btn {
+  background-color: crimson;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#cancel-btn:hover {
+  background-color: darkred;
 }
