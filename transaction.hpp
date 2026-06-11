@@ -19,5 +19,6 @@ HttpResponse createTransaction(const HttpRequest& req);
 HttpResponse getTransactions(const HttpRequest& req);
 HttpResponse deleteTransaction(const HttpRequest& req);
 HttpResponse serveFile(const HttpRequest& req);
+HttpResponse getTransactionByID(const HttpRequest& req);
 
 #endif

@@ -145,3 +145,37 @@ HttpResponse serveFile(const HttpRequest &req) {
     res.headers["Content-Length"] = std::to_string(content.length());
     return res;
 }
+
+HttpResponse getTransactionByID(const HttpRequest& req) {
+    HttpResponse res{};
+    auto it = req.params.find("id");
+    if (it == req.params.end()) {
+        res.status_code = 400;
+        res.status_text = "Bad Request";
+        res.headers["Date"] = getTimestamp();
+        return res;
+    }
+
+    int id = atoi(it->second.c_str());
+    std::lock_guard<std::mutex> lock(transactions_mutex);
+    auto t_it = transactions.begin();
+    while(t_it != transactions.end()) {
+        if (t_it->id == id) {
+            json obj{};
+            obj["id"] = id;
+            obj["description"] = t_it->description;
+            obj["amount"] = t_it->amount;
+            res.status_code=200;
+            res.status_text="OK";
+            res.body = obj.dump();
+            res.headers["Content-Length"] = std::to_string(res.body.length());
+            res.headers["Content-Type"] = "application/json";
+            return res;
+        }
+        t_it++;
+    }
+    res.status_code = 404;
+    res.status_text = "Not Found";
+    res.headers["Date"] = getTimestamp();
+    return res;
+}
