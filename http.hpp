@@ -37,6 +37,5 @@ std::string getTimestamp();
 HttpRequest parse_request(const std::string &req);
 std::string build_response(const HttpResponse &res);
 std::optional<HttpResponse> isValidRequest(const HttpRequest &req);
-HttpResponse serveFile(const HttpRequest &req);
 
 #endif
