@@ -5,7 +5,8 @@ std::vector<Route> routes = {
     {"GET", std::regex("^/transactions$"), getTransactions},
     {"GET", std::regex("^/transactions/(\\d+)$"), getTransactionByID},
     {"POST", std::regex("^/transactions$"), createTransaction},
-    {"DELETE", std::regex("^/transactions/(\\d+)$"), deleteTransaction}
+    {"DELETE", std::regex("^/transactions/(\\d+)$"), deleteTransaction},
+    {"PUT", std::regex("^/transactions/(\\d+)$"), editTransaction}
 };
 
 
