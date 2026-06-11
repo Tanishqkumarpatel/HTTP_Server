@@ -1,6 +1,6 @@
 # 🖥️ Multithreaded C++ HTTP Server & Finance Tracker
 
-its a custom, lightweight, multithreaded HTTP/1.1 Web Server written in C++17 from scratch using POSIX sockets. It includes a thread pool for handling client connections concurrently, a robust HTTP request parser, validation middleware, and a regular expression-based router.
+Its a custom, lightweight, multithreaded HTTP/1.1 Web Server written in C++17 from scratch using POSIX sockets. It includes a thread pool for handling client connections concurrently, a robust HTTP request parser, validation middleware, and a regular expression-based router.
 
 The server hosts a REST API for a **Finance Tracker** and serves its static web frontend (HTML, CSS, JS) from a `public/` directory.
 
