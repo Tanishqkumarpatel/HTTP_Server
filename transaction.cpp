@@ -48,6 +48,65 @@ HttpResponse createTransaction(const HttpRequest &req) {
     return res;
 }
 
+HttpResponse editTransaction(const HttpRequest &req) {
+    HttpResponse res{};
+
+    auto it_id = req.params.find("id");
+    if (it_id == req.params.end()) {
+        res.status_code = 400;
+        res.status_text = "Bad Request";
+        res.headers["Date"] = getTimestamp();
+        return res;
+    }
+
+    int id = atoi(it_id->second.c_str());
+
+    auto it = req.headers.find("Content-Type");
+    if (it == req.headers.end() || it->second != "application/json") {
+        // Malformed Header: missing or incorrect type.
+        res.status_code = 415;
+        res.status_text = "Unsupported Media Type";
+        res.headers["Accept-Post"] = "application/json";
+        return res;
+    }
+
+    json obj{};
+    try {
+        obj = json::parse(req.body);
+    } catch (json::parse_error& e) {
+        res.status_code = 400;
+        res.status_text = "Bad Request";
+        return res;
+    }
+
+    if (!obj["description"].is_string() || !obj["amount"].is_number()) {
+        res.status_code = 422;
+        res.status_text = "Unprocessable Content";
+        res.headers["Date"] = getTimestamp();
+        return res;
+    }
+
+    std::lock_guard<std::mutex> lock(transactions_mutex);
+    auto t_it = transactions.begin();
+
+    while (t_it != transactions.end()) {
+        if (t_it->id == id) {
+            t_it->amount = obj["amount"];
+            t_it->description = obj["description"];
+            res.status_code = 204;
+            res.status_text="No Content";
+            res.headers["Date"] = getTimestamp();
+            return res;
+        }
+        t_it++;
+    }
+
+    res.status_code = 404;
+    res.status_text = "Not Found";
+    res.headers["Date"] = getTimestamp();
+    return res;
+}
+
 
 HttpResponse getTransactions(const HttpRequest &req) {
 
