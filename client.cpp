@@ -37,7 +37,7 @@ int main() {
         std::cerr << "Could Not send the last message: " << message << "\n";
     }
 
-    char buffer[1024] {};
+    char buffer[4096] {};
     if (recv(client_fd, buffer, sizeof(buffer), 0) < 0) {
         std::cerr << "Did not get the response from server.\n";
     }
