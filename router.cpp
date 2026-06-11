@@ -4,6 +4,8 @@
 std::vector<Route> routes = {
     {"GET", std::regex("^/transactions$"), getTransactions},
     {"GET", std::regex("^/transactions/(\\d+)$"), getTransactionByID},
+    {"HEAD", std::regex("^/transactions$"), headTransactions},
+    {"HEAD", std::regex("^/transactions/(\\d+)$"), headTransactionByID},
     {"POST", std::regex("^/transactions$"), createTransaction},
     {"DELETE", std::regex("^/transactions/(\\d+)$"), deleteTransaction},
     {"PUT", std::regex("^/transactions/(\\d+)$"), editTransaction}
@@ -23,6 +25,11 @@ HttpResponse route(const HttpRequest& req) {
     }
     if (req.method == "GET") {
         return serveFile(req);
+    }
+    if (req.method == "HEAD") {
+        HttpResponse res = serveFile(req);
+        res.body="";
+        return res;
     }
     res.status_code = 404;
     res.status_text = "Not Found";

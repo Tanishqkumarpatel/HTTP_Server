@@ -21,5 +21,7 @@ HttpResponse deleteTransaction(const HttpRequest& req);
 HttpResponse serveFile(const HttpRequest& req);
 HttpResponse getTransactionByID(const HttpRequest& req);
 HttpResponse editTransaction(const HttpRequest& req);
+HttpResponse headTransactionByID(const HttpRequest& req);
+HttpResponse headTransactions(const HttpRequest& req);
 
 #endif

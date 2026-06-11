@@ -238,3 +238,16 @@ HttpResponse getTransactionByID(const HttpRequest& req) {
     res.headers["Date"] = getTimestamp();
     return res;
 }
+
+
+HttpResponse headTransactionByID(const HttpRequest& req) {
+    HttpResponse res = getTransactionByID(req);
+    res.body="";
+    return res;
+}
+
+HttpResponse headTransactions(const HttpRequest& req) {
+    HttpResponse res = getTransactions(req);
+    res.body="";
+    return res;
+}
