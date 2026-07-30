@@ -58,7 +58,7 @@ int getClient(int server_fd)
     int client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_len);
     if (client_fd < 0)
     {
-        std::cerr << "error accepting the client with address: " << inet_ntoa(client_addr.sin_addr) << std::endl;
+        std::cerr << "error accepting the client" << std::endl;
         return -1;
     }
 
@@ -78,6 +78,7 @@ void handleClient(int client_fd)
         if (bytes < 0)
         {
             std::cerr << "Error receiving message \n";
+            break;
         }
         if (bytes == 0)
         {
