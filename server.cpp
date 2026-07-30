@@ -73,8 +73,8 @@ void handleClient(int client_fd)
         if (stop) {
             break;
         }
-        char buffer[8192]{};
-        int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+        char buffer[8193]{};
+        int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
         if (bytes < 0)
         {
             std::cerr << "Error receiving message \n";
@@ -85,6 +85,9 @@ void handleClient(int client_fd)
             std::cerr << "Client Disconected \n";
             break;
         }
+
+        buffer[bytes] = '\0';
+        
         HttpRequest req = parse_request(buffer);
         auto error = isValidRequest(req);
         HttpResponse res{};
